@@ -58,8 +58,7 @@ public function boot()
 #### 修改app/Http/Middleware/VerifyCsrfToken
 ```
 protected $except = [
- //在這裡輸入你想關閉CSRF的Route路徑
- 'webhook/*'
+ 'webhook/*'    //在這裡輸入你想關閉CSRF的Route路徑
 ];
 ```
 * 參考資料:https://laravel-news.com/excluding-routes-from-the-csrf-middleware
@@ -72,10 +71,8 @@ composer.phar create-project laravel/laravel --prefer-dist
 ```
 #### 第二步，刪除預設資料夾public_html，建立軟連結將public_html連至laravel/public/
 ```
-//刪除預設資料夾public_html
-rm -rf public_html
-//建立軟連結
-ln -s laravel/public/ public_html 
+rm -rf public_html                  //刪除預設資料夾public_html
+ln -s laravel/public/ public_html   //建立軟連結
 ```
 #### 第二種方法，修改.htaccess
 ##### 不刪除public_html，laravel資料夾全部資料丟入public_html中，在.htaccess中加入程式碼如下:
