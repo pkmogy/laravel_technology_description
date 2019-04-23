@@ -24,7 +24,8 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-
+        //設定route所有id變數設置條件式
+        Route::pattern('id','[0-9]+');
         parent::boot();
     }
 
