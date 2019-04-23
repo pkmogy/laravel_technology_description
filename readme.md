@@ -1,71 +1,91 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+## Laravel疑難雜症
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+### 問題一、laravel5.4以上版本使用MySQL v5.7.7以下版本噴錯問題與解決方法
 
-## About Laravel
+會出問題的原因是Laravel預設的database character為utf8mb4，v5.7.7以下版本不支援所以噴錯，所以需修改code如下:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+#### 修改app/Providers/AppServiceProvider.php
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```
+use Illuminate\Support\Facades\Schema;
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+public function boot()
+{
+    Schema::defaultStringLength(191);
+}
 
-## Learning Laravel
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+#### 修改config/database.php
+```
+'mysql' => [ 
+'driver' => 'mysql', 
+'host' => env('DB_HOST', '127.0.0.1'), 
+'port' => env('DB_PORT', '3306'), 
+'database' => env('DB_DATABASE', 'forge'),
+'username' => env('DB_USERNAME', 'forge'),
+'password' => env('DB_PASSWORD', ''), 
+'unix_socket' => env('DB_SOCKET', ''),
+'charset' => 'utf8mb4', 
+'collation' => 'utf8mb4_unicode_ci',
+'prefix' => '', 
+'strict' => true,
+'engine' => null, ],
+```
+##### 修改成
+```
+'mysql' => [ 
+'driver' => 'mysql', 
+'host' => env('DB_HOST', '127.0.0.1'), 
+'port' => env('DB_PORT', '3306'), 
+'database' => env('DB_DATABASE', 'forge'),
+'username' => env('DB_USERNAME', 'forge'),
+'password' => env('DB_PASSWORD', ''), 
+'unix_socket' => env('DB_SOCKET', ''),
+'charset' => 'utf8', 
+'collation' => 'utf8_unicode_ci',
+'prefix' => '', 
+'strict' => true,
+'engine' => 'InnoDB ROW_FORMAT=DYNAMIC', ],
+```
+* 參考資料:https://laravel-news.com/laravel-5-4-key-too-long-error
+* 參考資料:https://github.com/the-control-group/voyager/issues/901
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1100 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost you and your team's skills by digging into our comprehensive video library.
+### 問題二、使用第三方API回傳自己頁面，結果沒有反應
 
-## Laravel Sponsors
+主要原因是Laravel預設會自動開啟CSRF，問題來了第三方無法設置token，導致頁面不執行，修改方式如下:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+#### 修改app/Http/Middleware/VerifyCsrfToken
+```
+protected $except = [
+ 'webhook/*'    //在這裡輸入你想關閉CSRF的Route路徑
+];
+```
+* 參考資料:https://laravel-news.com/excluding-routes-from-the-csrf-middleware
+* 參考資料:https://laravel.com/docs/5.8/csrf#csrf-excluding-uris
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
+### 問題三、如何在WHM/cPanel server安裝Laravel
+#### 第一步，登入你的Server，進入cPanel 用戶根目錄，執行以下代碼
+```
+composer.phar create-project laravel/laravel --prefer-dist 
+```
+#### 第二步，刪除預設資料夾public_html，建立軟連結將public_html連至laravel/public/
+```
+rm -rf public_html                  //刪除預設資料夾public_html
+ln -s laravel/public/ public_html   //建立軟連結
+```
+#### 第二種方法，修改.htaccess
+##### 不刪除public_html，laravel資料夾全部資料丟入public_html中，在.htaccess中加入程式碼如下:
+```
+RewriteEngine on
+RewriteCond %{REQUEST_URI} !^public
+RewriteRule ^(.*)$ public/$1 [L]
+```
+* 參考資料:https://www.linuxhelp.com/how-to-install-laravel-in-whmcpanel-server
+* 參考資料:https://webmasters.stackexchange.com/questions/98700/htaccess-direct-all-requests-to-public-dir-when-using-framework-etc
 
-## Contributing
+## Laravel套件平台分享區
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+##### (1)Voyager 後台管理套件:https://laravelvoyager.com/
+##### (2)線上代碼編輯器:https://codesandbox.io
+##### (3)線上前端代碼開發社群:https://codepen.io/
