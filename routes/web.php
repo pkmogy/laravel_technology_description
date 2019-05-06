@@ -20,7 +20,6 @@ Route::prefix('admin')->group(function (){
     Route::get('/{id}/profile', 'UserProfileController@show')->name('profile');
 });
 
-
 //重新導向
 Route::redirect('/main', '/public/index');
 
@@ -37,3 +36,21 @@ Route::get('user/{id}', function ($id) {
 Route::get('name/{name?}/{id}', function ($name = 'John') {
     return $name;
 });
+
+//單向controller
+Route::get('invoke','invokeController');
+
+//資源controller
+//except是除掉資源controller中的index
+//only是只要資源controller中的部分內容
+//name是可以覆蓋資源controller中route的name
+//parameters是可以覆蓋資源controller中route的參數
+Route::resource('photo','photoController',["except"=>["index"]]);
+Route::resource('photo', 'PhotoController', ['except' => [
+    'create','show', 'store', 'update', 'destroy'
+]]);
+Route::resource('photo','photoController',["names"=>['create'=>'leelo']]);
+Route::resource('photo','photoController',["parameters"=>['show'=>'pid']]);
+
+
+

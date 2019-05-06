@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 
 class UserProfileController extends Controller
 {
-    public function show(){
-        echo "show";
+    public function show(Request $request){
+        echo "show".$request->id;
     }
 
 }
