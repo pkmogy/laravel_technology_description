@@ -84,6 +84,12 @@ RewriteRule ^(.*)$ public/$1 [L]
 * 參考資料:https://www.linuxhelp.com/how-to-install-laravel-in-whmcpanel-server
 * 參考資料:https://webmasters.stackexchange.com/questions/98700/htaccess-direct-all-requests-to-public-dir-when-using-framework-etc
 
+### 問題四、關於php artisan config:cache使用後可能發現之問題
+    使用php artisan config:cache 之後，使用getenv會出現false 使用env 會出現 null，那是因為 config:cache會把env cache 到 config ，其實沒必要再透過env取得環境，此時只要使用config function即可取得env設定的值。
+    
+    比如要取得APP_KEY ，如果沒有cache，可以藉由getenv('APP_KEY') 取得，但cache則用 config('app.env') 取得(app.env 代表在config資料夾中的app.php 中的 env)。
+* 參考資料:http://animabeautifullife.blogspot.com/2016/09/laravel-configcache-getenv-env.html
+
 ## Laravel套件平台分享區
 
 ##### (1)Voyager 後台管理套件:https://laravelvoyager.com/
