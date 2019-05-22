@@ -13,7 +13,7 @@ class photoController extends Controller
      */
     public function index()
     {
-        //
+        return view('demo');
     }
 
     /**
@@ -21,9 +21,18 @@ class photoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        //相當於 $name2 != "" ? $name2 : '沒有這東西';
+        echo $request->query('name2','沒有這東西');
+        //判斷是否有值
+        if($request->has('name')){
+            echo $request->name;
+        }
+        //想確定請求中是否存在值且非空
+        if($request->filled('name')){
+            echo $request->name;
+        }
     }
 
     /**
