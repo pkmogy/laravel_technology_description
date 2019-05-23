@@ -52,5 +52,14 @@ Route::resource('photo', 'PhotoController', ['except' => [
 Route::resource('photo','photoController',["names"=>['create'=>'leelo']]);
 Route::resource('photo','photoController',["parameters"=>['show'=>'pid']]);
 
+//response實作
+Route::get('home', function () {
+    return response('你好 世界', 200)
+        ->header('Content-Type', 'text/plain');
+});
+//網址轉跳
+Route::get('google',function (){
+    return redirect()->away('https://www.google.com');
+});
 
 
